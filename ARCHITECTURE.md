@@ -321,5 +321,64 @@ sequenceDiagram
 - Implement the `ingestor` and static analyzer for your primary target language.
 - Add CI workflow to run the measurement harness for PRs (I can scaffold this next).
 
+## Multi-file / Whole-project support
+
+- Project graph and callgraph: the Ingestor must build an interprocedural callgraph and module-dependency graph (language-specific build hooks: Maven/Gradle/Go modules/Cargo/npm). This enables cross-file reasoning and ensures patches preserve cross-module contracts.
+- Chunking & retrieval: index at function/method/module granularity and store cross-file edges so Retriever returns related files when a hotspot spans multiple files.
+- Atomic multi-file patches: the LLM Optimizer should emit unified multi-file diffs suitable for a single atomic PR; the Verifier applies those diffs atomically in a sandbox and runs the full build/test pipeline before acceptance.
+- Build orchestration: the Verifier must reproduce the project's build (containerized) and run integration tests and end-to-end benchmarks; use build caches and reproducible Docker images to ensure stable measurements.
+
+Implementation notes:
+- Use language-aware callgraph tools — `pyan`/`pycg` for Python, `go list` + `gopls` for Go, `javac`/Soot for Java, `clang`/LLVM for C/C++ — and store edges in the Indexer as additional vectors/metadata.
+- Ensure the Indexer stores `depends_on` relationships and `exposes` (public APIs) per module to enable API-preserving refactor checks.
+
+## ML / AI Project-specific additions
+
+ML projects require extra artifacts and stricter validation. Add these components and rules:
+
+- ML Ingestor extensions:
+  - Index training scripts, model config files (YAML/JSON), checkpoints metadata (size, path, commit), dataset manifests, and serving code (Triton/TorchServe/TF Serving).
+  - Capture environment specs (CUDA, cuDNN, framework versions) and container images used for training/serving.
+
+- GPU and accelerator profiling (Dynamic Profiler):
+  - GPU power and utilization: use `pynvml`/NVML, `nvidia-smi` sampling, DCGM, and NVIDIA Nsight `nsys` traces for kernel-level hotspots.
+  - Framework profilers: `torch.profiler`, TensorFlow profiler, Triton metrics; capture kernel timelines and operator-level FLOPs and memory peaks.
+  - Host metrics: CPU-seconds, disk I/O, network, and memory — include these in the same trace timeline for alignment.
+
+- ML-aware Indexing & RAG:
+  - Embed model metadata (parameters, FLOPs estimate, checkpoint size) alongside code embeddings.
+  - Retrieve past refactors for model compression (quantization/pruning), batch/IO optimizations, or operator fusion examples.
+
+- ML Optimizer responsibilities:
+  - Suggest accuracy-preserving optimizations: mixed precision (AMP), dynamic/static quantization, pruning, distillation, batch-size tuning, data pipeline caching, and smarter checkpointing.
+  - Provide estimated training kWh cost for retraining and expected inference kWh savings — include a simple ROI calculation (training kWh / yearly inference kWh saved).
+
+- ML Verifier & Safety:
+  - Mandatory validation on holdout evaluation datasets and drift checks; require metrics (accuracy, F1, AUC) within an allowable delta before accepting model-change patches.
+  - Run small-scale retrain or simulated proxy runs when full retrain is infeasible; for heavy changes require a human review and canary testing in production traffic.
+
+- ML CI considerations:
+  - Use GPU-enabled CI runners or cloud instances; if unavailable, run estimator proxies (e.g., FLOPs-based cost models) but mark results as approximations.
+  - Track lifecycle carbon: include retraining/transfer energy when proposing model replacements and display net CO2 savings over expected deployment horizon.
+
+## ML-specific metrics and evaluation protocol
+
+- Primary metrics: `kWh/epoch`, `kWh/inference`, `CO2e_per_epoch`, `CO2e_per_inference`, validation metric (accuracy, AUC), throughput (samples/s), latency P50/P95.
+- Measurement best-practices:
+  - Pin GPU clocks if possible; use NVML to sample power at high frequency; align profiler traces with power samples via timestamps.
+  - For inference, measure `kWh/request` under representative batching and concurrency settings; for training, measure `kWh/epoch` for full reproducibility.
+  - Run repeated trials (N >= 10 for heavy GPU runs if time constrained, N >= 30 for smaller runs) and report means + CI.
+
+## Minor additions to Component Details
+
+- Ingestor: document and store ML artifacts (checkpoint pointers, dataset manifests) and project build manifests.
+- Dynamic Profiler: add GPU-profiler adapters and sampling scripts (NVML wrapper) to the `profiler/` module.
+- Indexer: include `artifact_type` field (code, trace, checkpoint, dataset_manifest) and `hardware_profile` metadata (GPU type, vCPU count) to enable hardware-aware retrieval.
+- LLM Optimizer: add an `ml_safety` flag in output schema when a patch affects training or model checkpoints; require explicit `allow_retrain` approval for high-cost retrains.
+
+---
+
+Updated: multi-file support and ML/AI-specific sections added.
+
 
 *Generated: ARCHITECTURE specification with flowchart and DFD L0–L2.*
