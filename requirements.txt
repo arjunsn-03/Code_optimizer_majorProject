@@ -20,6 +20,11 @@ gitpython
 click
 rich
 
+# ── Web UI ────────────────────────────────────────────────────────────────────
+streamlit
+plotly
+pandas
+
 # ── Data & validation ─────────────────────────────────────────────────────────
 pydantic
 

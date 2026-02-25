@@ -10,8 +10,8 @@ ROOT = Path(__file__).parent
 
 # ── Ollama (local LLM) ────────────────────────────────────────────────────────
 OLLAMA_HOST      = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-DEFAULT_MODEL    = os.getenv("DEFAULT_MODEL", "qwen3")
-AVAILABLE_MODELS = ["qwen3", "llama3", "mistral"]
+DEFAULT_MODEL    = os.getenv("DEFAULT_MODEL", "qwen3:8b")
+AVAILABLE_MODELS = ["qwen3:8b", "llama3", "mistral"]
 
 # ── Embeddings (local, sentence-transformers) ─────────────────────────────────
 EMBED_MODEL = os.getenv("EMBED_MODEL", "all-MiniLM-L6-v2")

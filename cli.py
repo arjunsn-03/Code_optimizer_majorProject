@@ -37,8 +37,8 @@ def cli() -> None:
 @click.argument("repo_path", default=".", metavar="REPO_PATH")
 @click.option(
     "--model", "-m",
-    default="qwen3", show_default=True,
-    type=click.Choice(["qwen3", "llama3", "mistral"]),
+    default="qwen3:8b", show_default=True,
+    type=click.Choice(["qwen3:8b", "llama3", "mistral"]),
     help="Local Ollama model to use for optimisation.",
 )
 @click.option(
