@@ -13,18 +13,18 @@
 ## Top-level flowchart
 ```mermaid
 flowchart TB
-  Dev[Developer / Repo]
-  CI[CI/CD]
+  Dev[Developer_Repo]
+  CI[CI_CD]
   Ingestor[Ingestor]
-  Static[Static Analyzer]
-  Dynamic[Dynamic Profiler]
-  Indexer[Indexer / Vector DB]
-  LLM[LLM Optimizer (RAG)]
-  Verifier[Verifier & Test Harness]
-  Energy[Energy Estimator]
-  Dashboard[Dashboard & Dataset]
+  Static[Static_Analyzer]
+  Dynamic[Dynamic_Profiler]
+  Indexer[Indexer_VectorDB]
+  LLM[LLM_Optimizer_RAG]
+  Verifier[Verifier_Test_Harness]
+  Energy[Energy_Estimator]
+  Dashboard[Dashboard_Dataset]
 
-  Dev -->|push/PR| CI
+  Dev -->|push / PR| CI
   CI --> Ingestor
   Ingestor --> Static
   Ingestor --> Dynamic
@@ -35,7 +35,7 @@ flowchart TB
   CI --> Verifier
   Verifier --> Energy
   Energy --> Dashboard
-  Verifier -->|accept/reject| Dev
+  Verifier -->|accept / reject| Dev
   Dashboard --> Dev
 ```
 
@@ -46,8 +46,8 @@ flowchart TB
 flowchart LR
   Dev[Developer]
   System[(LLM Code Optimizer System)]
-  Prod[Production Telemetry & Traces]
-  Grid[Grid CO2 API]
+  Prod[Production_Telemetry_Traces]
+  Grid[Grid_CO2_API]
 
   Dev -->|pushes code / reviews PRs| System
   System -->|suggests patches / reports| Dev
@@ -59,17 +59,17 @@ flowchart LR
 ```mermaid
 flowchart LR
   Dev[Developer]
-  CI[CI/CD Runner]
+  CI[CI_CD_Runner]
   Ingestor[Ingestor]
-  Static[Static Analyzer]
-  Dynamic[Dynamic Profiler]
-  Indexer[Vector DB + Artifact Store]
-  LLM[LLM Optimizer]
-  Verifier[Verifier & Test Harness]
-  Energy[Energy Estimator]
+  Static[Static_Analyzer]
+  Dynamic[Dynamic_Profiler]
+  Indexer[VectorDB_ArtifactStore]
+  LLM[LLM_Optimizer]
+  Verifier[Verifier_Test_Harness]
+  Energy[Energy_Estimator]
   Dashboard[Dashboard]
-  Grid[Grid CO2 API]
-  Prod[Production Telemetry]
+  Grid[Grid_CO2_API]
+  Prod[Production_Telemetry]
 
   Dev --> CI
   CI --> Ingestor
@@ -91,36 +91,36 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph Ingest
-    A1[Repo clone] --> A2[Language detection]
-    A2 --> A3[Parse files / AST extraction]
-    A3 --> StoreCode[(Code Store)]
+    A1[Repo_clone] --> A2[Language_detection]
+    A2 --> A3[Parse_files_AST_extraction]
+    A3 --> StoreCode[(Code_Store)]
   end
 
   subgraph Analysis
-    B1[Static Analyzer] --> B2[Complexity/Anti-patterns]
-    B3[Dynamic Profiler] --> B4[Hot-path traces]
-    B4 --> TraceStore[(Trace Store)]
-    B2 --> MetricStore[(Metrics DB)]
+    B1[Static_Analyzer] --> B2[Complexity_Antipatterns]
+    B3[Dynamic_Profiler] --> B4[Hot_path_traces]
+    B4 --> TraceStore[(Trace_Store)]
+    B2 --> MetricStore[(Metrics_DB)]
   end
 
   subgraph Index
     StoreCode --> Indexer
     TraceStore --> Indexer
     MetricStore --> Indexer
-    Indexer --> VectorDB[(Vector DB)]
+    Indexer --> VectorDB[(Vector_DB)]
   end
 
   subgraph LLM_RAG
     VectorDB --> Retriever
     Retriever --> Reranker
     Reranker --> LLM
-    LLM --> PatchStore[(Candidate Patches)]
+    LLM --> PatchStore[(Candidate_Patches)]
   end
 
   subgraph Verify
-    PatchStore --> Sandbox[Isolated Sandbox]
-    Sandbox --> Tests[Unit/Integration Tests]
-    Tests --> Results[(Test results & benchmarks)]
+    PatchStore --> Sandbox[Isolated_Sandbox]
+    Sandbox --> Tests[Unit_Integration_Tests]
+    Tests --> Results[(Test_results_benchmarks)]
     Results --> EnergyEstimator
     EnergyEstimator --> Dashboard
   end
