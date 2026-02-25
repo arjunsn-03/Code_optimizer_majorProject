@@ -1,0 +1,3 @@
+# Dataset directory
+# FAISS index, metadata and result artefacts are stored here at runtime.
+# Git-tracked via this file; generated files are git-ignored.
